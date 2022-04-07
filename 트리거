@@ -6,7 +6,7 @@ UPDATE memberTBL SET memberAddress = '서울 강남구 역삼동' WHERE memberNa
 
 DELETE memberTBL WHERE memberName = '연아';
 
-CREATE TABLE deleteMemberTBL
+CREATE TABLE deletedMemberTBL
 	( memberID char(8),
 	  memberName nchar(5),
 	  memberAddress nchar(20),
@@ -20,3 +20,10 @@ AS
 	-- deleted 테이블의 내용을 백업테이블에 삽입
 	INSERT INTO deletedMemberTBL
 		SELECT memberID, memberName, memberAddress, GETDATE() FROM deleted;
+
+SELECT * FROM memberTBL;
+
+DELETE memberTBL WHERE memberName = '탕탕이';
+
+SELECT * FROM memberTBL;
+SELECT * FROM deletedMemberTBL;
