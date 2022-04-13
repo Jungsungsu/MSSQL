@@ -1,0 +1,18 @@
+SELECT Name, height FROM userTbl WHERE name LIKE '김%'; -- userTbl 테이블 내의 김씨인 사람 조회하기
+SELECT height FROM userTbl WHERE Name = '김경호' -- userTbl 테이블내의 이름이 김경호인 사람의 키를 조회하기
+SELECT Name, height FROM userTbl WHERE height > 177; -- userTbl 테이블내의 키가 177 이상인 사람을 조회하기
+
+-- userTBL 테이블에서 이름이 '김경호'인 사람보다 키가 더 큰 사람을 찾아라(서브쿼리)
+SELECT Name, height 
+FROM userTBL
+WHERE height > (SELECT height FROM userTbl WHERE Name = '김경호'); 
+
+-- userTBL 테이블에서 주소가 경남인 사람의 몸무게 보다 큰 사람을 찾아라(서브쿼리)
+SELECT Name, height 
+FROM userTbl
+WHERE height >= ANY (SELECT height FROM userTbl WHERE addr = '경남');
+
+-- userTBL 테이블에서 주소가 경남인 사람의 몸무게만 조회하기(서브쿼리)
+SELECT Name, height 
+FROM userTbl
+WHERE height = ANY (SELECT height FROM userTbl WHERE addr = '경남');
