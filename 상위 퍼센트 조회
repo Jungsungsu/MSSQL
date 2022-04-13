@@ -9,3 +9,9 @@ SELECT TOP(0.1) PERCENT CreditCardID, ExpYear, ExpMonth -- 상위 0.1% 조회
 FROM Sales.CreditCard
 WHERE CardType = 'Vista'
 ORDER BY ExpYear, ExpMonth;
+
+-- 상위 0.1%를 출력하되 마지막이랑 같으면 다 출력
+SELECT TOP(0.1) PERCENT WITH TIES CreditCardID, ExpYear, ExpMonth -- 상위 0.1%이면서 마지막이랑 같으면 다 출력
+FROM Sales.CreditCard
+WHERE CardType = 'Vista'
+ORDER BY ExpYear, ExpMonth;
