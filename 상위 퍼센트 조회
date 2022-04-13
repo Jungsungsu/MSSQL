@@ -5,7 +5,7 @@ WHERE CardType = 'Vista'
 ORDER BY ExpYear, ExpMonth;
 
 -- 카드 타입이 Vista인 데이터 상위 0.1% 조회
-SELECT TOP(0.1) PERCENT CreditCardID, ExpYear, ExpMonth
+SELECT TOP(0.1) PERCENT CreditCardID, ExpYear, ExpMonth -- 상위 0.1% 조회
 FROM Sales.CreditCard
 WHERE CardType = 'Vista'
 ORDER BY ExpYear, ExpMonth;
