@@ -1,0 +1,10 @@
+CREATE TABLE buyTbl -- 회원 구매 테이블
+(
+	num  INT IDENTITY NOT NULL PRIMARY KEY, --순번(PK)
+	userID CHAR(8) NOT NULL -- 아이디(FK)
+		 FOREIGN KEY REFERENCES userTbl(userID),
+	prodName  NCHAR(6) NOT NULL, -- 물품명
+	groupName NCHAR(4) , -- 분류
+	price     INT NOT NULL, -- 단가
+	amount    SMALLINT NOT NULL -- 수량
+);
