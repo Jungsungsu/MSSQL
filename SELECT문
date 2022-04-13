@@ -1,0 +1,4 @@
+SELECT * FROM userTbl;
+SELECT * FROM buyTbl;
+
+-- 테이블 조회
