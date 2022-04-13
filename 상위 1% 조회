@@ -1,0 +1,5 @@
+-- 카드 타입이 Vista인 데이터 상위 1% 조회
+SELECT TOP(SELECT COUNT(*)/100 FROM Sales.CreditCard) CreditCardID -- 상위 1% 조회
+FROM Sales.CreditCard
+WHERE CardType = 'Vista'
+ORDER BY ExpYear, ExpMonth;
