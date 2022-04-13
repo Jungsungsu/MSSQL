@@ -1,5 +1,5 @@
 CREATE TABLE userTbl -- 회원 테이블
-( userID  CHAR(8) NOT NULL PRIMARY KEY, -- 사용자 아이디
+( userID  CHAR(8) NOT NULL PRIMARY KEY, -- 사용자 아이디 
   name    NVARCHAR(10) NOT NULL, -- 이름
   birthYear INT NOT NULL, -- 출생년도
   addr    NCHAR(2) NOT NULL, -- 지역(경기,서울,경남 식으로 2글자만 입력)
@@ -8,3 +8,4 @@ CREATE TABLE userTbl -- 회원 테이블
   height	  SMALLINT, -- 키
   mDate   DATETIME -- 회원 가입일
 );
+-- CHAR : 고정길이 문자형 VARCHAR : 가변길이 문자형
