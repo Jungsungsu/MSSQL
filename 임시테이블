@@ -1,0 +1,11 @@
+-- #tmpTbl 임시테이블에 숫자,가격,양 집어넣기
+SELECT num, price, amount INTO #tmpTbl FROM buyTbl;
+GO
+INSERT INTO #tmpTbl
+	SELECT a.price, a.amount FROM #tmpTbl a, #tmpTbl b;
+GO
+
+SELECT * FROM #tmpTbl;
+
+-- #tmpTbl 임시테이블에서 price,amount 곱하기
+SELECT SUM(price * amount) from #tmpTbl;
