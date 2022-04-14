@@ -1,0 +1,47 @@
+-- WITH절 : CTE을 표현하기 위한 구문
+-- CTE : 기존의 뷰, 파생 테이블, 임시 테이블 등으로 사용되던 것을 대신할 수 있으며, 더 간결한 식으로 보여지는 장점이 있다.
+-- CTE 종류 : 1. 비재귀적 CTE   2. 재귀적 CTE
+
+-- 비재귀적 CTE 예제
+SELECT userID AS [사용자], SUM(price*amount) AS [총구매액]
+	FROM buyTbl GROUP BY userID;
+
+-- 내림차순 정렬 조회
+SELECT * FROM abc ORDER BY 총구매액 DESC
+
+-- 가상 테이블을 abc를 이용해 userID와 total 조회하기
+WITH abc(userID, total)
+AS
+(SELECT userID, SUM(price*amount)
+	FROM buyTbl GROUP BY userID   )
+SELECT * FROM abc ORDER BY total DESC;
+
+-- CTE 1단계('각 지역별로 가장 큰 키'를 뽑는 쿼리')
+SELECT addr, MAX(height) FROM userTbl GROUP BY addr
+
+-- CTE 2단계('위 쿼리를 WITH 구문으로 묶기
+WITH cte_테이블이름(addr, maxHeight)
+AS
+	(SELECT addr, MAX(height) FROM userTbl GROUP BY addr)
+
+-- CTE 3단계('키의 평균'을 구하는 쿼리를 작성하기')
+SELECT AVG(키) FROM cte_테이블이름
+
+-- CTE 4단계('2단계와 3단계의 쿼리를 합친다. 이 예에서는 키의 평균을 실수로 만들기 위해서 키에다 1.0을 곱해서 실수로 변환했다.)
+WITH cte_userTbl(addr, maxHeight)
+AS
+( SELECT addr, MAX(height) FROM userTbl GROUP BY addr )
+SELECT AVG(maxHeight*1.0) AS [각 지역별 최고키의 평균] FROM cte_userTbl;
+
+-- 중복 CTE
+WITH
+AAA(userID, total)
+	AS
+		(SELECT userID, SUM(price*amount) FROM buyTbl GROUP BY userID),
+BBB(sumtotal)
+	AS
+		(SELECT SUM(total) FROM AAA),
+CCC(sumavg)
+	AS
+		(SELECT sumtotal / (SELECT count(*) FROM buyTbl) FROM BBB)
+SELECT * FROM CCC;
