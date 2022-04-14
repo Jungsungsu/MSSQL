@@ -15,3 +15,9 @@ SELECT TOP(0.1) PERCENT WITH TIES CreditCardID, ExpYear, ExpMonth -- 상위 0.1%
 FROM Sales.CreditCard
 WHERE CardType = 'Vista'
 ORDER BY ExpYear, ExpMonth;
+
+-- userTbl 테이블에서 4행을 건너뛰고 3행만 출력
+SELECT userID, name, birthYear FROM userTbl
+	ORDER BY birthYear 
+	OFFSET 4 ROWS;
+	FETCH NEXT 3 ROWS ONLY;
