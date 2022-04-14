@@ -1,0 +1,40 @@
+-- 시퀀스 생성
+CREATE TABLE testTbl3
+( id int,
+  userName nchar(3),
+  age int,
+  nation nchar(4) DEFAULT '대한민국');
+GO
+CREATE SEQUENCE idSEQ
+	START WITH 1	--시작값
+	INCREMENT BY 1;	-- 증가값
+GO
+
+-- 시퀀스 입력하기("NEXT VALUE FOR 시퀀스이름")
+INSERT INTO testTbl3 VALUES (NEXT VALUE FOR idSEQ, '지민', 25, DEFAULT);
+
+-- 시퀀스의 시작값을 다시 설정해준 후에 계속 시퀀스를 입력하기
+INSERT INTO testTbl3 VALUES(11,'쯔위',18,'대만');
+GO
+ALTER SEQUENCE idSEQ
+	RESTART WITH 12; -- 시작값을 다시 설정
+GO
+INSERT INTO testTbl3 VALUES (NEXT VALUE FOR idSEQ,'미나',21,'일본');
+SELECT * FROM testTbl3
+
+-- 시퀀스를 활용해 특정 범위의 값이 계속 반복해서 입력되게 할 수 있다. 예를 들면 100,200,300이 반복해서 입력되게 다음과 같이 설정할 수도 있다.
+CREATE TABLE testTbl4 (id INT);
+GO
+CREATE SEQUENCE cycleSEQ
+	START WITH 100
+    INCREMENT BY 100
+	MINVALUE 100 -- 최소값
+	MAXVALUE 300 -- 최대값
+	CYCLE;       -- 반복설정
+GO
+INSERT INTO testTbl4 VALUES (NEXT VALUE FOR cycleSEQ);
+INSERT INTO testTbl4 VALUES (NEXT VALUE FOR cycleSEQ);
+INSERT INTO testTbl4 VALUES (NEXT VALUE FOR cycleSEQ);
+INSERT INTO testTbl4 VALUES (NEXT VALUE FOR cycleSEQ);
+GO
+SELECT * FROM testTbl4;
