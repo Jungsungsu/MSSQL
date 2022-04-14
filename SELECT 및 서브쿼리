@@ -16,3 +16,9 @@ WHERE height >= ANY (SELECT height FROM userTbl WHERE addr = '경남');
 SELECT Name, height 
 FROM userTbl
 WHERE height = ANY (SELECT height FROM userTbl WHERE addr = '경남');
+
+-- 키가 큰 순서로 정렬하되, 키가 같을 경우에 이름 순으로 정렬
+SELECT Name, height FROM userTbl ORDER BY height DESC, name ASC;
+
+-- 중복된 값을 제거하는 DISTINCT 구문
+SELECT DISTINCT addr FROM userTbl;
