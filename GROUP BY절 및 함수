@@ -1,0 +1,26 @@
+-- 구매 테이블에서 사용자가 구매한 물품의 개수 조회
+SELECT userID, amount FROM buyTbl ORDER BY userID;
+
+-- 사용자별로 GROUP BY로 묶어준 후에 SUM() 함수로 구매개수를 합치기
+SELECT userID, SUM(amount) FROM buyTbl GROUP BY userID;
+
+-- SUM의 결과 열에 제목이 없으니 별칭을 사용해서 결과 출력
+SELECT userID AS [사용자 아이디], SUM(amount) AS [총 구매 개수]
+	FROM buyTbl GROUP BY userID;
+
+-- 구매액의 총합을 출력해보기, 구매액은 가격*수량
+SELECT userID AS [사용자 아이디], SUM(price*amount) AS [총 구매액]
+	FROM buyTbl GROUP BY userID;
+
+-- 집계함수
+-- AVG() : 평균, MIN() : 최소값, MAX() : 최대값, COUNT() : 행의 개수세기, COUNT_BIG() : 개수를 센다, STDEV() : 표준편차 구하기, VAR() : 분산 구하기
+
+-- 전체 구매자가 구매한 물품의 개수의 평균 조회
+SELECT AVG(amount) AS [평균 구매 개수] FROM buyTbl;
+
+-- 전체 구매자가 구매한 물품의 개수의 평균 소수점까지 조회
+SELECT AVG(CAST(amount AS DECIMAL(10,6))) AS [평균구매개수] FROM buyTbl;
+
+-- GROUP BY절을 이용해 각 사용자 별로 한번 구매시 물건을 평균 몇 개 구매했는지 평균 내기
+SELECT userID, AVG(amount*1.0) AS [평균 구매 개수] FROM buyTbl GROUP BY userID;
+
