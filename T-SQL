@@ -1,0 +1,51 @@
+-- T-SQL의 분류
+-- SQL문 분류 : DML, DDL, DCL
+
+-- DML : 데이터 조작언어는 데이터를 조작(선택,삽입,수정,삭제)하는데 사용되는 언어이다. DML 구문이 사용되는 대상은 테이블의 행이다. DML을 사용하기 위해서는 꼭 테이블이 정의되어 있어야함.
+	  -- SQL문 중에 SELECT, INSERT, UPDATE, DELETE가 이 구문에 해당, 또한 트랜잭션이 발생하는 SQL도 DML이다.
+-- 트랜잭션 : 테이블의 데이터를 변경 할때 실제 테이블에 완전히 적용하지 않고, 임시로 적용시키는 것을 말한다.
+
+-- DDL : 데이터 정의언어는 데이터베이스, 테이블, 뷰, 인덱스 등의 데이터베이스 개체를 생성/삭제/변경하는 역할을 한다.
+	  -- 자주 사용하는 DDL은 CREATE, DROP, ALTER등이다.
+-- DDL은 트랜잭션을 발생시키지 않아서 되돌림이나 완전 적용을 시킬수가 없다. 즉, DDL문은 실행 즉시 SQL SERVER에 적용된다.
+
+-- DCL : 데이터 제어 언어는 사용자에게 어떤 권한을 부여하거나 빼앗을 때 주로 사용하는 구문으로, GRANT/REVOKE/DENY 등이 이에 해당된다.
+
+-- CREATE문
+CREATE TABLE testTbl1 (id int, userName nchar(3), age int);
+
+-- INSERT문
+INSERT INTO testTbl1 VALUES (1, '홍길동', 25);
+
+-- id와 이름만을 입력하고 나이를 입력하고 싶지 않다면, 아래와 같이 테이블 이름두에 입력할 열의 목록을 나열해줘야한다.
+INSERT INTO testTbl1(id, userName) VALUES (2,'설현');
+
+-- 열의 순서를 바꿔서 입력하고 싶을 떄는 꼭 열 이름을 입력할 순서에 맞춰 나열해줘야 한다.
+INSERT INTO testTbl1(userName, age, id) VALUES ('초아', 26, 3)
+
+-- 자동으로 증가하는 IDENTITIY 함수
+CREATE TABLE testTbl2
+	(id int IDENTITY,
+	 userName nchar(3),
+	 age int,
+	 nation nchar(4) DEFAULT '대한민국');
+GO
+INSERT INTO testTbl2 VALUES ('지민', 25, DEFAULT);
+
+-- 강제로 IDENTITY 값을 입력해보자
+SET IDENTITY_INSERT testTbl2 ON;
+GO
+INSERT INTO testTbl2(id, userName, age, nation) VALUES (11,'쯔위',18,'대만');
+
+-- IDENTITY OFF
+SET IDENTITY_INSERT testTbl2 OFF;
+INSERT INTO testTbl2 VALUES ('미나', 21, '일본')
+SELECT * FROM testTbl2
+
+-- 열의 이름을 잊어버렸을 때 저장 프로시저를 사용하면 열의 목록 및 기타정보를 출력해줌
+EXECUTE sp_help 테이블이름;
+
+-- 특정 테이블에 설정된 현재의 IDENTITY 값을 확인하려면 아래 형식을 사용하면 된다.
+SELECT IDENT_CURRENT("테이블이름')
+SELECT @@DENTITIY;
+
