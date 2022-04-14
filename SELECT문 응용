@@ -21,3 +21,9 @@ SELECT userID, name, birthYear FROM userTbl
 	ORDER BY birthYear 
 	OFFSET 4 ROWS;
 	FETCH NEXT 3 ROWS ONLY;
+	
+-- buyTbl을 buyTbl2로 복사하는 구문
+SELECT * INTO buy TBl2 FROM buyTbl;
+
+-- 지정한 일부 열만 복사하기
+SELECT userID, prodName_INTO buyTbl3 FROM buyTbl;
