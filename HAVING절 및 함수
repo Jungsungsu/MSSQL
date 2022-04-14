@@ -1,0 +1,43 @@
+-- HAVING절을 이용해 구매액이 1000 이상인 사람만 조회
+SELECT userID AS [사용자], SUM(price*amount) AS [총구매액]
+FROM buyTbl
+GROUP BY userID
+HAVING SUM(price*amount) > 1000;
+
+-- 추가로 총 구매액이 적은 사용자부터 나타내려면 ORDET BY를 사용해보기
+SELECT userID AS [사용자], SUM(price*amount) AS [총구매액]
+FROM buyTbl
+GROUP BY userID
+HAVING SUM(price*amount) > 1000
+ORDER BY SUM(price*amount);
+
+-- 소합계를 내서 총합계로 결과를 나타내주는 ROLLUP() 함수
+SELECT num, groupName, SUM(price * amount) AS [비용]
+FROM buyTbl
+GROUP BY ROLLUP(groupName,num);
+
+-- num은 primary key이므로, 그룹화가 되지 않는 효과를 위해서 넣어줬기 때문에 만약 소합계 및 총합계만 필요하면 num을 빼면 된다
+SELECT groupName, SUM(price * amount) AS [비용]
+FROM buyTbl
+GROUP BY ROLLUP (groupName);
+
+-- 추가행 여부 확인(GROUPING_ID)
+SELECT groupName, SUM(price*amount) AS [비용]
+		, GROUPING_ID(groupName) AS [추가행 여부]
+	FROM buyTbl
+	GROUP BY ROLLUP(groupName);
+  
+  -- 물품별 소합계 및 색상별 소합계를 모두 조회할때 CUBE() 함수 사용하기
+CREATE TABLE cubeTbl(prodName NCHAR(3), color NCHAR(2), amount INT);
+GO
+INSERT INTO cubeTbl VALUES('컴퓨터', '검정', 11);
+INSERT INTO cubeTbl VALUES('컴퓨터', '검정', 11);
+INSERT INTO cubeTbl VALUES('컴퓨터', '검정', 11);
+INSERT INTO cubeTbl VALUES('컴퓨터', '검정', 11);
+GO
+SELECT prodName, color, SUM(amount) AS [수량합계]
+	FROM cubeTbl
+	GROUP BY CUBE (color, prodName);
+  
+ -- SELECT문 틀
+-- SELECT, FROM, WHERE, GROUP BY, HAVING, ORDER BY
