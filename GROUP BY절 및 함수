@@ -24,3 +24,8 @@ SELECT AVG(CAST(amount AS DECIMAL(10,6))) AS [평균구매개수] FROM buyTbl;
 -- GROUP BY절을 이용해 각 사용자 별로 한번 구매시 물건을 평균 몇 개 구매했는지 평균 내기
 SELECT userID, AVG(amount*1.0) AS [평균 구매 개수] FROM buyTbl GROUP BY userID;
 
+-- 휴대폰이 있는 사용자의 수를 조회
+SELECT COUNT(*) FROM userTbl;
+
+-- 휴대폰이 있는 회원만 카운트
+SELECT COUNT(mobile1) AS [휴대폰이 있는 사용자] FROM userTbl;
