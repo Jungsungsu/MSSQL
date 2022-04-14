@@ -1,0 +1,5 @@
+-- 구매 테이블에서 현재의 단가가 모두 1.5배 인상됨
+UPDATE buyTbl SET price = price * 1.5;
+
+-- testTbl3에서 'kim' 사용자가 필요 없음
+DELETE testTbl6 WHERE Fname = 'Kim'; 
