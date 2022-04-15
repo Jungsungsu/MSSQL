@@ -1,0 +1,61 @@
+-- 변수 지정
+USE sqlDB;
+DECLARE @myVar1 INT;
+DECLARE @myVar2 SMALLINT, @myVar3 DECIMAL(5,2);
+DECLARE @myVar4 NCHAR(20);
+
+SET @myVar1 = 5;
+SET @myVar2 = 3;
+SET @myVar3 = 4.25;
+SET @myVar4 = N'가수 이름==>';
+
+SELECT @myVar1;
+SELECT @myVar2 + @myVar3;
+
+SELECT @myVar4, Name FROM userTbl WHERE height > 180;
+
+-- 상위 3개 변수 지정
+DECLARE @myVar1 INT;
+SET @myVar1 = 3;
+SELECT TOP(@myVar1) Name, height FROM userTbl ORDER BY height;
+
+-- 데이터 형식 변환 함수 : CAST(), CONVERT()
+-- 형식
+-- CAST (expression AS epdlxjgudtlr[ (길이) ])
+-- CONVERT (데이터형식[(길이)], expression [,스타일]
+-- TRY_CONVERT (데이터형식[(길이)], expression[,스타일])
+-- PARSE (문자열 AS 데이터형식)
+-- TRY_PARSE (문자열 AS 데이터형식)
+
+-- sqlDB의 구매 테이블(buyTbl)에서 평균 구매 개수를 구하는 쿼리문
+USE sqlDB;
+SELECT AVG(amount) AS [평균 구매 개수] FROM buyTbl;
+
+-- CAST() 함수나 CONVERT(), TRY_CONVERT() 함수를 사용할 수 있다.
+SELECT AVG( CAST(amount AS FLOAT) ) AS [평균구매개수] FROM buyTbl;
+SELECT AVG( CONVERT(FLOAT, amount) ) AS [평균구매개수] FROM buyTbl;
+
+-- 단가/수량 결과 살펴보기 (둘 다 int형이라서 int형으로 나온다.)
+SELECT price, amount, price/amount AS [단가/수량] FROM buyTbl;
+
+-- CAST() 함수나 CONVERT() 또는 TRY_CONVERT() 함수를 사용해서 실수로 변환하고, 출력되는 값을 소수점 아래 2자리까지만 출력하기
+SELECT price, amount, CAST(CAST(price AS FLOAT)/amount AS DECIMAL(10,2))
+	AS [단가/수량] FROM buyTbl;
+  
+  -- 문자열 변환
+SELECT PARSE('2019년 9월 9일' AS DATE);
+
+-- TRY_PARSE()는 정상적으로 실행되고 NULL값을 반환
+SELECT PARSE('123.45' AS INT);
+SELECT TRY_PARSE('123.45' AS INT);
+
+-- 형 변환 방식 종류 : 1. 명시적인 변환 2. 암시적인 변환
+-- 1. 명시적인 변환 : CAST() 또는 CONVERT() 함수를 이용해서 데이터 형식을 변환하는 것
+-- 2. 암시적인 변환 : CAST()나 CONVERT() 함수를 사용하지 않고 형이 변환되는 것
+
+-- 암시적 변환
+DECLARE @myVar1 CHAR(3);
+SET @myVar1 = '100';
+SELECT @myVar1 + '200'; -- 문자와 문자를 더함(정상)
+SELECT @myVar1 + 200; -- 문자와 정수를 더함(정상: 정수로 암시적 형 변환)
+SELECT @myVar1 + 200.0; -- 문자와 실수를 더함(정상: 실수로 암시적 형 변환)
