@@ -59,3 +59,10 @@ SET @myVar1 = '100';
 SELECT @myVar1 + '200'; -- 문자와 문자를 더함(정상)
 SELECT @myVar1 + 200; -- 문자와 정수를 더함(정상: 정수로 암시적 형 변환)
 SELECT @myVar1 + 200.0; -- 문자와 실수를 더함(정상: 실수로 암시적 형 변환)
+
+-- 명시적 변환
+DECLARE @myVar1 CHAR(3);
+SET @myVar1 = '100';
+SELECT @myVar1 + '200'; -- 문자와 문자를 더함(정상)
+SELECT CAST(@myVar1 AS INT) + 200; -- 정수로 변환후 연산
+SELECT CAST(@myVar1 AS DECIMAL(5,1)+ 200.0; -- 실수로 변환후 연산
