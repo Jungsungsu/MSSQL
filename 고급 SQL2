@@ -93,3 +93,34 @@ SELECT SPACE(5);
 SELECT STUFF ('SQL 서버 2016', 5, 2, 'Server')
 -- 16. FORMAT() : 지정된 형식으로 출력한다. 표준 형식은 FORMAT을 갖는데 value는 출력할 값이고, format은 출력할 형식이다.
 SELECT FORMAT ( GETDATE(), 'dd/MM/yyyy');
+
+--
+USE tempDB;
+CREATE TABLE maxTbl
+	( col1 VARCHAR(MAX),
+	  col2 VARCHAR(MAX));
+
+INSERT INTO maxTbl VALUES ( REPLICATE('A',1000000), REPLICATE('가',1000000));
+
+SELECT LEN(col1) AS [VARCHAT(MAX)], LEN(col2)AS [NVARCHAR(MAX)] FROM maxTbl;
+
+DELETE FROM maxTbl;
+INSERT INTO maxTbl VALUES(
+	REPLICATE( CAST('A' AS VARCHAR(MAX)) , 1000000 ),
+	REPLICATE( CONVERT(VARCHAR(MAX) , '가' ) , 1000000) );
+SELECT LEN(col1) AS [VARCHAR(MAX)], LEN(col2)AS [NVARCHAR(MAX)] FROM maxTbl;
+
+UPDATE maxTbl SET col1 = REPLACE( (SELECT col1 FROM maxTbl),'A','B'),
+						col2 = REPLACE( (SELECT col2 FROM maxTbl),'가','나');
+SELECT REVERSE((SELECT col1 FROM maxTbl));
+SELECT SUBSTRING((SELECT col2 FROM maxTbl),999991, 10);
+
+-- maxTbl 테이블 전체를 조회하고, 맨뒤에서 10번째부터 10글자를 각각 'C'와 '다'로 바꾼다.(STUFF 함수)
+UPDATE maxTbl SET
+	col1 = STUFF( (SELECT col1 FROM maxTbl),999991, 10, REPLICATE('C',10)), 
+	col2 = STUFF( (SELECT col2 FROM maxTbl),999991, 10, REPLICATE('다',10));  
+
+-- 맨뒤에 5글자를 다시 'D'로 바꾸고 '라'로 바꿔준다.(WRITE 함수)
+UPDATE maxTbl SET col1.WRITE('DDDDD',999996, 5), col2.WRITE('라라라라라',999996, 5);
+
+-- REPLACE 시킬떄는 성능면에서 .WRITE가 더 효율적이다.
