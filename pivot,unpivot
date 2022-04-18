@@ -1,0 +1,48 @@
+-- PIVOT / UNPIVOT 연산자
+-- PIVOT 연산자 : 한 열에 포함된 여러 값을 출력하고, 이를 여러 열로 변환하여 테이블 반환 식을 회전하고 필요하면 집계까지 수행할 수 있다.
+-- UNPIVOT 연산자 : PIVOT의 반대되는 연산을 수행한다.
+
+-- pivotTest 테이블 생성
+USE tempdb;
+CREATE TABLE pivotTest
+	( uName NCHAR(3),
+	  season NCHAR(2),
+	  amount INT );
+
+-- pivot 테이블 값 입력 및 조회
+INSERT INTO pivotTest VALUES
+	('김범수', '겨울', 10), ('윤종신', '여름', 15), ('김범수', '가을', 25),
+	('김범수', '봄', 3), ('김범수', '봄', 37), ('윤종신', '겨울', 40),
+	('김범수', '여름', 14), ('김범수', '겨울', 22), ('윤종신', '여름', 64);
+SELECT * FROM pivotTest;
+
+-- 한 눈에 테이블 내용 파악하기
+SELECT * FROM pivotTest
+	PIVOT ( SUM(amount)
+			FOR season
+			IN ([봄],[여름],[가을],[겨울])) AS resultPivot;
+
+-- JSON 데이터 : 데이터를 교환하는 개방형 표준 포맷, 속성(Key)과 값(Value)으로 쌍을 이뤄 구성된다.
+
+-- userTBL에서 키가 180이상인 사람의 이름과 키를 나타내며, 이것을 JSON으로 변환하려면 'FOR JON'절을 이용한다.
+USE sqlDB;
+SELECT name, height FROM userTbl
+WHERE height >= 180
+FOR JSON AUTO;
+
+-- JSON을 SQL Server의 테이블로 변환하고 OPENJSON() 함수 및 WITH 절을 이용해, 그 외에 JSON 관련 함수의 사용법도 확인해보기
+DECLARE @json VARCHAR(MAX)
+SET @json=N' {"userTBL" :
+	[
+		{"name":"임재범","height":182},
+		{"name":"이승기","height":182},
+		{"name":"성시경","height":186}
+	]
+}'
+SELECT ISJSON(@json);
+SELECT JSON_QUERY(@json, '$.userTBL[0]');
+SELECT JSON_VALUE(@json, '$.userTBL[0].name');
+SELECT * FROM OPENJSON(@json, '$.userTBL');
+WITH (
+		name NCHAR(8)   '$.name' ,
+		heiht INT		'$.height');
