@@ -1,0 +1,64 @@
+-- 순위 함수
+-- 순위 함수 종류 : RANK(), NTILE(), DENSE_RANK(), ROW_NUMBER()
+
+-- userTbl 테이블에서 키가 큰 순으로 순위를 정하고 싶을 경우(ROW_NUMBER)
+USE sqlDB;
+SELECT ROW_NUMBER() OVER(ORDER BY height DESC)[키큰순위], name, addr, height
+	FROM userTbl;
+
+-- userTbl 테이블에서 키가 동일할 경우에는 이름 가나다순으로 정렬하기
+SELECT ROW_NUMBER() OVER(ORDER BY height DESC, name ASC)[키큰순위],name, addr, height
+	FROM userTbl;
+
+-- 전체 순위가 아닌 각 지역별로 순위를 주고 싶은 경우(PARTITION BY절 사용)
+SELECT addr, ROW_NUMBER() OVER(PARTITION BY addr ORDER BY height DESC, name ASC)
+		[지역별키큰순위], name, height
+	FROM userTbl;
+
+-- 두 개의 데이터를 동일한 등수로 처리하는 함수(DENSE_RANK 함수 사용)
+SELECT DENSE_RANK() OVER(ORDER BY height DESC)[키큰순위], name, addr, height
+	FROM userTbl;
+
+-- 2등이 2명일 경우, 4번째 사람이 3등으로 표시되있으므로 4등부터 순위를 매기기 (RANK()함수 사용)
+SELECT RANK() OVER(ORDER BY height DESC)[키큰순위],name, addr, height
+	FROM userTbl;
+
+-- 전체 인원을 키순으로 세운 후에, 몇개의 그룹으로 분할하고 싶은 경우(NTILE(나눌 그룹 개수) 함수 사용)
+SELECT NTILE(2) OVER(ORDER BY height DESC) [반번호], name, addr, height
+	FROM userTbl;
+
+-- 전체 인원을 키순으로 세운 후에, 3개의 반으로 분리하면 2명이 배정되고 1명씩 추가적으로 더 배정이 된다.
+SELECT NTILE(4) OVER(ORDER BY height DESC) [반번호], name, addr, height
+	FROM userTbl;
+
+-- 분석 함수
+-- 분석 함수 종류 : CUME_DIST(), LEAD(), FIRST_VALUE(), PERCENTILE_CONT(), LAG(), PERCENTILE_DISC(), LAST_VALUE(), PERCENT_RANK()
+
+-- 회원 테이블(userTbl)에서 키가 큰 순서로 정렬한 후에, 다음 사람과 키 차이를 미리 알기( LEAD() 함수 사용)
+USE sqlDB;
+SELECT name, addr, height AS [키],
+		height - (LEAD(height, 1, 0) OVER (ORDER BY height DESC)) AS [다음 사람과 키 차이]
+	FROM userTbl;
+
+--  회원 테이블(userTbl)에서 키가 큰 순서로 정렬한 후에, 이전 사람과 키 차이를 미리 알기( LAG() 함수 사용)
+SELECT name, addr, height AS [키],
+		height - (LAG(height, 1, 0) OVER (ORDER BY height DESC)) AS [다음 사람과 키 차이]
+	FROM userTbl;
+
+-- 지역별로 가장 키가 큰 사람과의 차이를 알고 싶을때( FIRST_VALUE()를 활용 )
+SELECT addr, name, height AS [키],
+		height - ( FIRST_VALUE(height) OVER (PARTITION BY addr ORDER BY height DESC) )
+			AS [지역별 가장 큰 키와 차이]
+	FROM userTbl;
+
+-- 누적 합계 내보기, 현 지역에서 자신보다 키가 같거나 큰 인원의 백분율을 구할 수 있음( CUME_DIST() 함수 사용)
+SELECT addr,name,height AS [가입일],
+		(CUME_DIST() OVER (PARTITION BY addr ORDER BY height DESC)) * 100
+				AS [누적인원 백분율%]
+	FROM userTbl;
+
+-- 각 지역별로 키의 중앙값을 계산하고 싶을때 ( PERCENTILE_CONT() 함수 사용)
+SELECT DISTINCT addr,
+	PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY height) OVER (PARTITION BY addr)
+				AS [지역별 키의 중앙값]
+	FROM userTbl;
