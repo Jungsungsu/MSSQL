@@ -1,0 +1,41 @@
+-- CROSS JOIN(상호 조인) : 한쪽 테이블의 모든 행과 다른 쪽 테이블의 모든 행을 조인시키는 기능, CROSS JOIN의 결과 개수는 두 테이블 개수를 곱한 개수
+
+-- 회원 테이블과 구매 테이블의 CROSS JOIN문
+USE sqlDB;
+SELECT *
+	FROM buyTbl
+		CROSS JOIN userTbl;
+
+-- 데이터 개수 카운트 ( COUNT_BIG(*) 함수 사용 )
+USE AdventureWorks;
+SELECT COUNT_BIG(*) AS [데이터개수]
+	FROM Sales.SalesOrderDetail
+		CROSS JOIN Sales.SalesOrderHeader;
+
+-- SELF JOIN(자체 조인) : 자기 자신과 자기 자신이 조인한다
+SELECT A.emp AS [부하직원], B.emp AS [직속상관], B.department AS [직속상관부서]
+	FROM empTbl A
+		INNER JOIN empTbl B
+			ON A.manager = B.emp
+	WHERE A.emp = '우대리';
+
+-- UNION : UNION은 두 쿼리의 결과를 행으로 합치는 것
+
+-- 학생이름과 주소와 동아리방을 합치기 (UNION ALL 함수 사용)
+SELECT stdName, addr FROM stdTbl
+	UNION ALL
+SELECT clubName, roomNo FROM clubTbl;
+
+-- EXCEPT : 첫 번째 쿼리의 결과 중에서, 두 번째 쿼리에 해당하는 것을 제외하기 위한 구문
+
+-- sqlDB의 사용자를 모두 조회하되 전화가 없는 사람을 제외하고자 할때 (EXCEPT문 사용)
+SELECT name, mobile1+mobile2 AS [전화번호] FROM userTbl
+	EXCEPT
+SELECT name, mobile1+mobile2 FROM userTbl WHERE mobile1 IS NULL;
+
+-- INTERSECT : 첫 번째 쿼리의 결과 중에서, 두 번째 쿼리에 해당되는 것만 조회하기 위한 구문
+
+-- 전화가 없는 사람만 조회하고자 할때 (INTERSECT문 사용)
+SELECT name,mobile1+mobile2 AS [전화번호] FROM userTbl
+	INTERSECT
+SELECT name,mobile1+mobile2 FROM userTbl WHERE mobile1 IS NULL;
