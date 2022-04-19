@@ -58,3 +58,61 @@ SELECT U.userid, U.name, U.addr
 		SELECT *
 		FROM buyTbl B
 		WHERE U.userid = B.userid );
+
+USE sqlDB;
+CREATE TABLE stdTbl
+(	stdName	NVARCHAR(10) NOT NULL PRIMARY KEY,
+	addr	NCHAR(4) NOT NULL
+);
+GO
+CREATE TABLE clubTbl
+(	clubName	NVARCHAR(10) NOT NULL PRIMARY KEY,
+	roomNo	NCHAR(4) NOT NULL
+);
+GO
+CREATE TABLE stdclubTbl
+(	num int IDENTITY NOT NULL PRIMARY KEY,
+	stdName	NVARCHAR(10) NOT NULL
+		FOREIGN KEY REFERENCES stdTbl(stdName),
+	clubName	NVARCHAR(10) NOT NULL
+		FOREIGN KEY REFERENCES clubTbl(clubName),
+);
+GO
+SELECT * FROM STDTBL
+INSERT INTO stdTbl VALUES ('김범수','경남')
+INSERT INTO stdTbl VALUES('성시경','서울')
+INSERT INTO stdTbl VALUES('조용필','경기')
+INSERT INTO stdTbl VALUES('은지원','경북')
+INSERT INTO stdTbl VALUES('바비킴','서울')
+
+
+INSERT INTO clubTbl VALUES ('수영','101호')
+INSERT INTO clubTbl VALUES('바둑','102호')
+INSERT INTO clubTbl VALUES('축구', '103호')
+INSERT INTO clubTbl VALUES('봉사','104호')
+
+INSERT INTO stdclubTbl VALUES ('김범수','바둑')
+INSERT INTO stdclubTbl VALUES('김범수','축구')
+INSERT INTO stdclubTbl VALUES('조용필','축구')
+INSERT INTO stdclubTbl VALUES('은지원','축구')
+INSERT INTO stdclubTbl VALUES('은지원','봉사')
+INSERT INTO stdclubTbl VALUES('바비킴', '봉사')
+GO			
+
+-- 학생이름, 주소, 동아리, 방번호 조회 (INNER JOIN 활용)
+SELECT S.stdName, S.addr, C.clubName, C.roomNo
+	FROM stdTbl S
+		INNER JOIN stdclubTbl SC
+			ON S.stdName = SC.stdName
+		INNER JOIN clubTbl C
+		ON SC.clubName = C.clubName
+	ORDER BY S.stdName;
+
+-- 동아리를 기준으로 조회 (INNER JOIN 활용)
+SELECT C.clubName, C.roomNo, S.stdName, S.addr
+	FROM stdTbl S
+		INNER JOIN stdclubTbl SC
+			ON SC.stdName = S.stdName
+		INNER JOIN clubTbl C
+			ON SC.clubName = C.clubName
+	ORDER BY C.clubName;
