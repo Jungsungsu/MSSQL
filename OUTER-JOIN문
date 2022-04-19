@@ -1,0 +1,36 @@
+-- OUTER JOIN(외부 조인) : 조인의 조건에 만족되지 않는 행까지도 포함시키는 것
+-- LEFT OUTER JOIN : "왼쪽테이블의 것은 모두 출력되어야 한다"
+-- RIGHT OUTER JOIN : "오른쪽테이블의 것은 모두 출력되어야 한다"
+-- FULL OUTER JOIN : "모든 테이블이 모두 출력되어야 한다"
+
+-- 전체 회원의 구매기록을 조회하고, 구매 기록이 없는 회원도 출력되야 함 (LEFT OUTER JOIN문 사용)
+USE sqlDB;
+SELECT U.userid, U.name, B.prodName, U.addr, U.mobile1 + U.mobile2 AS [연락처]
+	FROM userTbl U
+		LEFT OUTER JOIN buyTbl B
+			ON U.userid = B.userid
+	ORDER BY U.userid;
+
+-- 전체 회원의 구매기록을 조회하고, 구매 기록이 없는 회원도 출력되야 함 (RIGHT OUTER JOIN문 사용)
+SELECT U.userid, U.name, B.prodName, U.addr, U.mobile1 + U.mobile2 AS [연락처]
+	FROM buyTbl B
+		RIGHT OUTER JOIN userTbl U
+			ON U.userid = B.userid
+	ORDER BY U.userid;
+
+-- 한 번도 구매한 적이 없는 유령 회원의 목록을 뽑아보기 (INNER JOIN 중 LEFT OUTER JOIN 사용)
+SELECT U.userid, U.name, B.prodName, U.addr, U.mobile1 + U.mobile2 AS [연락처]
+	FROM userTbl U
+		LEFT OUTER JOIN buyTbl B
+			ON U.userid = B.userid
+	WHERE B.prodName IS NULL
+	ORDER BY U.userid;
+
+-- 구매한적이 없어도 나오게 출력하기 ( FULL JOIN 사용 )
+SELECT S.stdName, S.addr, C.clubName, C.roomNO
+	FROM stdTbl S
+		FULL OUTER JOIN stdclubTbl SC
+			ON S.stdName = SC.stdName
+		FULL OUTER JOIN clubTbl C
+			ON SC.clubName = C.clubName
+	ORDER BY S.stdName;
