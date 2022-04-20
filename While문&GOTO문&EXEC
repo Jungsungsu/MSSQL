@@ -1,0 +1,68 @@
+-- While문: 참인 동안에는 계속 반복되는 반복문
+
+-- While문을 이용해 1에서 100까지의 값을 모두 더하는 간단한 기능을 구현해보기
+DECLARE @i INT = 1 -- 1에서 100까지 증가할 변수
+DECLARE @hap BIGINT = 0 -- 더한 값을 누적할 변수
+
+WHILE (@i <= 100)
+BEGIN
+	SET @hap += @i -- @hap의 원래의 값에 @i를 더해서 다시 @hap에 넣으라는 의미
+	SET @i += 1 -- @i의 원래의 값에 1을 더해서 다시 @i에 넣으라는 의미
+END
+
+PRINT @hap
+
+-- 1에서 100까지의 합계에서 7의 배수는 합계에서 것에서 제외시켜보기 (CONTINUE문과 BREAK문 사용)
+DECLARE @i INT = 1 -- 1에서 100까지 증가할 변수
+DECLARE @hap BIGINT = 0 -- 더한 값을 누적할 변수
+
+WHILE (@i <= 100)
+BEGIN
+	IF (@i % 7 = 0)
+		BEGIN
+			PRINT N'7의 배수:' + CAST (@i AS NCHAR(3))
+			SET @i += 1
+			CONTINUE
+		END
+	SET @hap += @i 
+	IF (@hap > 1000) BREAK
+	SET @i += 1 
+END
+
+PRINT N'합계=' + CAST(@hap AS NCHAR(10))
+
+-- GOTO문
+-- 1. GOTO 문을 만나면 지정한 위치로 무조건 이동한다.
+-- 2. GOTO 문은 프로그램 자체의 논리를 흐름을 깨는 것이므로 꼭 필요할 때 외에는 사용하지 않는 것이 바람직함
+... (중간생략)
+	SET @hap += @i
+	IF (@hap > 1000) GOTO endprint
+	SET @i += 1
+END
+
+endprint:
+PRINT N'합계=' + CAST(@hap AS NCHAR(10))
+
+-- WAITFOR : 코드의 실행을 일시정지할떄 사용
+-- 1. WAITFOR DELAY : 지정한 시간만큼 일시정지시키는 효과가 있음
+-- 2. WAITFOR TIME : 지정한 시각에 실행시키는 효과
+BEGIN
+	WAIT FOR DELAY '00:00:05';
+	PRINT N'5초간 멈춘 후 진행되었음';
+END
+
+-- TRY/CATCH, RAISEERROR,THROW
+-- TRY/CATCH문 오류를 처리하는 데 아주 편리하고 강력한 기능을 발휘한다
+BEGIN TRY
+	원래 사용하던 SQL 문장들
+END TRY
+BEGIN CATCH
+	만약 BEGIN ... TRY에서 오류가 발생하면 처리할 일들
+END CATCH
+
+-- EXEC(동적 SQL)
+-- EXEC 문장은 SQL 문을 실행시켜주는 역할을 한다.
+use sqlDB
+DECLARE @sql VARCHAR(100)
+SET @sql = 'SELECT * FROM userTbl WHERE userid = ''EJW'' ' -- 모두 작은따옴표.
+EXEC(@sql)
