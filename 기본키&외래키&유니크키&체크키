@@ -1,0 +1,94 @@
+DROP TABLE userTbl;
+CREATE TABLE userTbl
+(	userID char(8)	NOT NULL,
+	name nvarchar(10)	NOT NULL,
+	birthYear	int NOT NULL,
+	addr	nchar(2) NOT NULL,
+	mobile1	char(3)	NULL,
+	mobile2	char(8)	NULL,
+	height	smallint	NULL,
+	mDate	datetime NULL
+	CONSTRAINT PK_userTbl_userID PRIMARY KEY (userID)
+);
+GO
+-- 기본키 제약조건 확인
+EXEC sp_help userTbl;
+
+-- 테이블 제약조건을 줘야할때 (ALTER 문법)
+ALTER TABLE userTbl
+	ADD CONSTRAINT PK_userTbl_userID
+	PRIMARY KEY (userId)
+
+-- 제품 테이블 생성 및 수정
+CREATE TABLE prodTbl
+(	prodCode NCHAR(3) NOT NULL,
+	prodID	NCHAR(4) NOT NULL,
+	prodDate SMALLDATETIME NOT NULL,
+	prodCur	NCHAR(10) NULL
+);
+GO
+ALTER TABLE prodTbl
+	ADD CONSTRAINT PK_prodTbl_proCode_prodID
+	PRIMARY KEY (prodCode, prodID);
+GO
+
+DROP TABLE buyTbl;
+-- 외래키
+CREATE TABLE buyTbl;
+GO
+CREATE TABLE buyTbl
+( num INT IDENTITY NOT NULL PRIMARY KEY,
+  userid char(8) NOT NULL,	
+  prodName nchar(6) NOT NULL,
+  groupName NCHAR(4),
+  price INT NOT NULL,
+  amount SMALLINT NOT NULL,
+  CONSTRAINT FK_userTbl_buyTbl
+			FOREIGN KEY(userID) REFERENCES userTbl(userID)
+);
+
+-- 제품에 외래키 조건 줘야할때 (ALTER문)
+ALTER TABLE buyTbl
+		ADD CONSTRAINT FK_userTbl_buyTbl
+		FOREIGN KEY (userID)
+		REFERENCES userTbl (userID);
+
+-- 외래키 제약조건 확인
+EXEC sp_help buyTbl
+
+-- 구매 테이블의 ID를 변경하고 싶을떄
+ALTER TABLE buyTbl
+		ADD CONSTRAINT FK_userTbl_buyTbl
+		FOREIGN KEY (userID)
+		REFERENCES userTbl (userID)
+		ON UPDATE CASCADE;
+
+-- UNIQUE 제약 조건 : 중복되지 않는 유일한 값을 입력해야 한다.
+-- UNIQUE 제약 조건 주는방법
+-- 1. email char(30) NULL UNIQUE
+-- 2. email char(30) NULL CONSTRAINT AK_email UNIQUE
+-- 3. email char(30) NULL, CONSTRAINT AK_email UNIQUE (email)
+
+-- CHECK 제약 조건 : 입력되는 데이터를 점검하는 기능 
+-- CHECK 제약 조건을 설정한 후에는, 제약 조건에 위배되는 값은 입력이 안 된다.
+
+-- 출생년이 1900년 이후 그리고 현재의 연도 이전
+ALTER TABLE userTbl
+		ADD CONSTRAINT CK_birthYear
+		CHECK (birthYear >= 1900 AND birthYear <= YEAR(GETDATE()));
+
+-- 휴대폰 국번 체크
+ALTER TABLE userTbl
+		ADD CONSTRAINT CK_mobile1
+		CHECK (mobile IN ('010', '011', '016', '017', '018', '019'));
+
+-- 키는 0이상이어야 함
+ALTER TABLE userTbl
+		ADD CONSTRAINT CK_height
+		CHECK (height >= 0);
+
+-- 전화번호 국번 체크
+ALTER TABLE userTbl
+		WITH NOCHECK
+		ADD CONSTRAINT CK_mobile1
+		CHECK (mobil1 IN ('010','011','016''017','018','019'));
