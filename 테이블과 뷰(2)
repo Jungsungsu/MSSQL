@@ -1,0 +1,126 @@
+-- 테이블 수정
+USE tableDB;
+ALTER TABLE userTbl
+	ADD homepage NVARCHAR(30) -- 열추가
+		DEFAULT 'http://www.hanb.co.kr' -- 디폴트값
+		NULL; -- Null 허용함
+
+-- 열 삭제
+ALTER TABLE userTbl
+	DROP COLUMN mobile1;
+
+-- 열의 데이터 형식 변경
+ALTER TABLE userTbl
+		ALTER COLUMN name NVARCHAR(20) NULL;
+
+-- 열의 이름 변경(sp_rename)
+EXEC sp_rename 'userTbl.name', 'username', 'COLUMN';
+
+-- 열의 제약 조건 추가 및 삭제
+ALTER TABLE userTbl
+	DROP CONSTRAINT CD_height; -- 제약 조건의 이름
+
+USE tableDB;
+DROP TABLE buyTbl, userTbl;
+GO
+CREATE TABLE userTbl
+( userID char(8),
+  name nvarchar(10),
+  birthYear int,
+  addr nchar(2),
+  mobile1 char(3),
+  mobile2 char(8),
+  height smallint,
+  mDate datetime
+);
+CREATE TABLE buyTbl
+(	num int IDENTITY, -- IDENTITY는 자동으로 NOT NULL 설정
+	userid char(8),
+	prodName nchar(6),
+	groupName nchar(4),
+	price int,
+	amount smallint
+);
+GO
+INSERT INTO userTbl VALUES('LSG', N'이승기', 1987, N'서울', '011', '1111111', 182, '2008-8-8');
+INSERT INTO userTbl VALUES('KBS', N'김범수', NULL, N'경남', '011', '2222222', 173, '2012-4-4');
+INSERT INTO userTbl VALUES('KKH', N'김경호', 1871, N'전남', '019', '3333333', 177, '2007-7-7');
+INSERT INTO userTbl VALUES('JYP', N'조용필', 1950, N'경기', '011', '4444444', 166, '2009-4-4');
+GO
+INSERT INTO buyTbl VALUES('KBS', N'운동화', NULL, 30, 2);
+INSERT INTO buyTbl VALUES('KBS', N'노트북', N'전자', 1000, 1);
+INSERT INTO buyTbl VALUES('JYP', N'모니터', N'전자', 200, 1);
+INSERT INTO buyTbl VALUES('BBK', N'모니터', N'전자', 200, 5);
+GO
+
+ALTER TABLE userTbl
+	ALTER COLUMN userID char(8) NOT NULL;
+ALTER TABLE userTbl
+	ADD CONSTRAINT PK_userTbl_userID
+		PRIMARY KEY (userID);
+GO
+ALTER TABLE buyTbl
+	ADD CONSTRAINT PK_buyTbl_num
+		PRIMARY KEY (num);
+
+-- 외래키를 설정하면서 완전하지 않는것은 체크하지 말라
+ALTER TABLE buyTbl WITH NOCHECK
+	ADD CONSTRAINT FK_userTbl_buyTbl
+		FOREIGN KEY (userID)
+		REFERENCES userTbl (userID);
+
+INSERT INTO buyTbl VALUES('KBS', N'청바지', N'의류', 50, 3);
+
+
+INSERT INTO buyTbl VALUES('BBK', N'메모리', N'전자', 80, 10);
+INSERT INTO buyTbl VALUES('SSK', N'책', N'서적', 15, 5);
+INSERT INTO buyTbl VALUES('EJW', N'책', N'서적', 15, 2);
+INSERT INTO buyTbl VALUES('EJW', N'청바지', N'의류', 50, 1);
+INSERT INTO buyTbl VALUES('BBK', N'운동화', NULL, 30, 2);
+INSERT INTO buyTbl VALUES('EJW', N'책', N'서적', 15, 1);
+INSERT INTO buyTbl VALUES('BBK', N'운동화', NULL, 30, 2);
+GO
+ALTER TABLE buyTbl
+	CHECK CONSTRAINT FK_userTbl_buyTbl;
+GO
+
+ALTER TABLE userTbl WITH NOCHECK
+	ADD CONSTRAINT CK_birthYear
+	CHECK
+		(birthYear >= 1900 AND birthYear <= YEAR(GETDATE()));
+
+INSERT INTO userTbl VALUES('LSG','성시경', 1979,'서울', NULL, NULL, 186, '2013-12-12');
+INSERT INTO userTbl VALUES('LJB','임재범', 1963,'서울', '016', '6666666', 182, '2009-9-9');
+INSERT INTO userTbl VALUES('YJS','윤종신', 1969,'경남', NULL, NULL, 170, '2005-5-5');
+INSERT INTO userTbl VALUES('EJW','은지원', 1972,'경북', '011', '8888888', 174, '2014-3-3');
+INSERT INTO userTbl VALUES('JKW','조관우', 1965,'경기', '018', '9999999', 172, '2010-10-10');
+INSERT INTO userTbl VALUES('BBK','바비킴', 1973,'서울', '010', '0000000', 176, '2013-5-5');
+
+ALTER TABLE buyTbl
+	NOCHECK CONSTRAINT FK_userTbl_buyTbl;
+
+ALTER TABLE buyTbl
+	CHECK CONSTRAINT FK_userTbl_buyTbl;
+
+-- INNER JOIN
+SELECT B.userid, U.name, B.prodName, U.addr, U.mobile1 + U.mobile2 AS [연락처]
+	FROM buyTbl B
+		INNER JOIN userTbl U
+			ON B.userid = U.userid;
+
+-- 개수 세기
+SELECT COUNT(*) FROM buyTbl;
+
+-- OUTER JOIN
+SELECT B.userid, U.name, B.prodName, U.addr, U.mobile1 + U.mobile2 AS [연락처]
+	FROM buyTbl B
+		LEFT OUTER JOIN userTbl U
+			ON B.userid = U.userid
+	ORDER BY B.userid;
+
+ALTER TABLE buyTbl WITH NOCHECK
+	ADD CONSTRAINT FK_userTbl_buyTbl
+		FOREIGN KEY (userID)
+		REFERENCES userTbl(userID)
+		ON UPDATE CASCADE
+		ON DELETE CASCADE;
