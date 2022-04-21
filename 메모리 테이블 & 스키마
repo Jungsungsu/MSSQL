@@ -1,0 +1,74 @@
+-- 메모리 액세스에 최적화된 테이블
+
+-- 메모리 테이블을 사용하기 위해 만족되어야 하는 전제조건
+-- 1. 64비트 SQL Server 2014 이후 버전의 Enterprise, Developer, Evaluation 에디션
+-- 2. 충분한 RAM이 장착된 컴퓨터(일반적으로 32GB 이상 장착 권장)
+-- 3. 메모리 테이블 크기의 2배에 해당하는 디스크 여유 공간
+-- 4. 테이블에 기본 키 및 비클러스터형 인덱스 필요
+
+USE tempdb;
+CREATE DATABASE memoryDB;
+
+-- 테이블 생성
+USE memoryDB;
+CREATE TABLE diskTable( a INT PRIMARY KEY NONCLUSTERED, b NCHAR(100) );
+GO
+CREATE TABLE memoryTable ( a INT PRIMARY KEY NONCLUSTERED, b NCHAR(100));
+	WITH (MEMORY_OPTIMIZED = ON)
+GO
+
+-- 메모리형 테이블 저장 프로시저 만들기
+CREATE PROCEDURE usp_diskInsert
+@data NCHAR (100)
+AS
+	DECLASRE @i INT = 1;
+	WHILE @i <= 500
+	BEGIN
+		INSERT INTO dbo.diskTable(a,b) VALUES (@i, @data);
+		SET @i += 1;
+	END
+GO
+
+-- 메모리형 테이블을 운영하기 위한 저장 프로시저 만들기
+CREATE PROCEDURE usp_memoryInsert
+@data NCHAR(100)
+WITH NATIVE_COMPILATION, SCHEMABINDING
+AS
+BEGIN ATOMIC WITH ( TRANSACTION ISOLATION LEVEL = SNAPSHOT, LANGUAGE = N'Korean')
+	DECLARE	@i	INT = 1;
+	WHILE @i <= 500
+	BEGIN
+		INSERT INTO dbo.memoryTable(a,b) VALUES (@i, @data);
+		SET @i += 1;
+	END
+END
+GO
+
+-- @sendData에서 '가'라고 100글자를 만들어서, 500번 입력하기
+DECLARE @sendData NCHAR(100) = REPLICATE(N'가', 100);
+EXECUTE usp_diskInsert @sendData;
+
+-- 메모리 테이블에 데이터 500번 입력하기
+DECLARE @sendData NCHAR(100) = REPLICATE(N'가', 100);
+EXECUTE usp_memoryInsert @sendData;
+
+SELECT * FROM diskTable ORDER BY a;
+SELECT * FROM memoryTable ORDER BY a;
+EXECUTE usp_memoryInsert @sendData;
+
+-- 스키마 : 데이터베이스 내에 있는 개체들을 관리하기 위한 묶음
+-- Step0. 실습용 데이터베이스를 만든다.
+USE tempdb;
+CREATE DATABASE schemaDB;
+-- Step1. 스키마를 2개 만든다.
+USE schemaDB;
+GO
+CREATE SCHEMA userSchema;
+GO
+CREATE SCHEMA buySchema;
+-- Step2. 스키마 데이터 베이스에 3개의 테이블 생성
+CREATE TABLE userSchema.userTBL (id int);
+CREATE TABLE buySchema.buyTBL ( num int);
+CREATE TABLE buySchema.prodTBL (pid int);
+-- Step3. userSchema 테이블 조회
+SELECT * FROM userSchema.userTBL;
