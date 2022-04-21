@@ -1,0 +1,104 @@
+-- 뷰 : 뷰는 일반 사용자 입장에서는 테이블과 동일하게 사용하는 개체
+USE tableDB;
+GO
+
+-- 뷰 생성 구문
+CREATE VIEW v_userTbl
+AS
+		SELECT userid, name, addr FROM userTbl
+GO
+
+-- 뷰 구문 조회
+SELECT * FROM v_userTbl; -- 뷰를 테이블이라고 생각해도 무방
+
+-- 뷰의 장점
+-- 1. 보안에 도움이 된다.
+-- 2. 복잡한 쿼리를 단순화 시킬 수 있다.
+USE sqlDB;
+GO
+
+-- 뷰 만들기 (SELECT AS문으로 열을 바꿀 수 있음)
+CREATE VIEW v_userbuyTbl
+AS
+	SELECT U.userid AS [USER ID], U.name AS [USER NAME], B.prodName AS [PRODUCT NAME],
+			U.addr, U.mobile1 + U.mobile2 AS [MOBILE PHONE]
+		FROM userTbl U
+	 INNER JOIN buyTbl B
+	  ON U.userid = B.userid;
+GO
+
+-- 뷰 삭제
+DROP VIEW v_userbuyTbl;
+
+CREATE VIEW v_userTbl
+AS
+	SELECT userid, name, addr FROM userTbl;
+
+-- 시스템 테이블 조회
+SELECT * FROM sys.sql_modules;
+
+-- 뷰 이름 확인하기
+SELECT OBJECT_NAME(object_id) AS [뷰 이름], definition FROM sys.sql_modules;
+
+-- 뷰를 못보게 하기 (ENCRYPTION 이용) --> 보안!!
+ALTER VIEW v_userTbl
+	WITH ENCRYPTION
+AS
+	SELECT userid, name, addr FROM userTbl;
+GO
+SELECT OBJECT_NAME(object_id) AS [뷰 이름], definition FROM sys.sql_modules;
+
+-- 뷰를 통해서 데이터 업데이트 하기
+UPDATE v_userTbl SET addr = N'부산' WHERE userid='JKW';
+
+-- 뷰를 통해서 데이터 입력하기 (해결방안 : DEFAULT값 설정)
+INSERT INTO v_userTbl(userid, name, addr) VALUES ('KBM','김병만','충북'); -- 결과 : 테이블 'sqlDB.dbo.userTbl', 열 'birthYear'에 NULL 값을 삽입할 수 없습니다. 열에는 NULL을 사용할 수 없습니다. INSERT이(가) 실패했습니다.
+
+-- 그룹함수를 포함하는 뷰 생성 (사용자별 합계 구하기)
+CREATE VIEW v_sum
+AS
+	SELECT userid AS [userid], SUM(price*amount) AS [total]
+		FROM buyTbl GROUP BY userid;
+GO
+SELECT * FROM v_sum;
+
+-- 키가 177이상인 사람만 뷰 만들기
+CREATE VIEW v_height177
+AS
+	SELECT * FROM userTbl WHERE height >= 177;
+GO
+SELECT * FROM v_height177;
+
+-- 177 미만인 사람만 뷰 삭제
+INSERT INTO v_height177 VALUES('KBM', '김병만', 1977, '경기', '010', '5555555', 158, '2019-01-01');
+
+-- 복합 뷰 만들기
+CREATE VIEW v_userbuyTbl
+AS
+	SELECT U.userid, U.name, B.prodName, U.addr, U.mobile1 + U.mobile2 AS mobile
+		FROM userTbl U
+			INNER JOIN buyTbl B
+				ON U.userid = B.userid;
+GO
+-- 복합 뷰는 업데이트가 안된다.
+
+DROP TABLE buyTbl, userTbl;
+
+SELECT * FROM v_userbuyTbl;
+
+USE tempdb;
+RESTORE DATABASE sqlDB FROM DISK = 'c:\SQL\sqldb2016.bak' WITH REPLACE;
+GO
+USE sqlDB;
+GO
+CREATE VIEW v_userTbl
+AS
+	SELECT userid, name, addr FROM userTbl;
+
+EXEC sp_depends userTbl;
+
+-- 뷰의 종류
+-- 1. 표준 뷰 : 한 개 또는 그 이상의 테이블을 이용해서 만든 뷰
+-- 2. 분할 뷰 : 한 대 또는 여러 대의 서버에 있는 테이블을 조인해서 하나의 테이블처럼 보이도록 하는 뷰
+-- 3. 인덱싱된 뷰 : 뷰를 가상의 테이블이라고 부른다.
+-- 4. 시스템 뷰 : 내부의 정보를 관리하기 위한 시스템 뷰
