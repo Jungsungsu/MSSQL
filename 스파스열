@@ -1,0 +1,82 @@
+-- 스파스 열 : 간단히 'NULL 값에 대해 최적화된 저장소가 있는 일반열'로 정의 가능
+-- NULL값이 많이 들어갈 것으로 예상되는 열을 스파스 열로 지정해 놓으면, 공간 절약 효과가 커진다.
+-- 결국, 스파스 열로 지정된 열에 NULL 값을 입력하면 지정된 데이터 크기보다 적게 공간을 차지하지만, 반대로 실제 값이 입력되면 오히려 공간을 더 차지하게 된다.
+
+USE tempdb;
+-- sparseDB 데이터베이스 생성 및 테이블 생성
+CREATE DATABASE sparseDB;
+USE sparseDB;
+CREATE TABLE charTbl (id int identity, data char(100) NULL);
+CREATE TABLE sparseCharTbl (id int identity, data char(100) SPARSE NULL);
+
+-- 300번은 null값, 나머지는 'A' 값인 테이블 생성
+DECLARE @i INT = 0
+WHILE @i < 10000
+BEGIN
+	INSERT INTO charTbl VALUES(null); -- null값3회
+	INSERT INTO charTbl VALUES(null);
+	INSERT INTO charTbl VALUES(null);
+	INSERT INTO charTbl VALUES(REPLICATE('A',100)); -- 실제 데이터 1회
+	INSERT INTO SparseCharTbl VALUES(null); -- null값3회
+	INSERT INTO SparseCharTbl VALUES(null);
+	INSERT INTO SparseCharTbl VALUES(null);
+	INSERT INTO SparseCharTbl VALUES(REPLICATE('A',100)); -- 실제 데이터 1회
+	SET @i += 1
+END
+
+-- TRUNCATE 함수는 전체 데이터 삭제
+TRUNCATE TABLE charTbl; -- 전체 행 데이터삭제
+TRUNCATE TABLE sparseCharTbl; -- 전체 행 데이터 삭제
+GO
+-- charTbl,sparseCharTbl 데이터를 A로 꽉 채우기
+DECLARE @i INT = 0
+WHILE @i < 40000
+BEGIN
+	INSERT INTO charTbl VALUES(REPLICATE('A',100));
+	INSERT INTO sparseCharTbl VALUES(REPLICATE('A',100));
+	SET @i += 1
+END
+
+-- 스파스 열의 제약 사항
+-- 1. geometry,geography,image,text,ntext,timestamp,UDT에는 설정할 수 없다.
+-- 2. 당연히 NULL을 허용해야 하며, IDENTITY 속성을 사용할 수 없다.
+-- 3. FILESTREAM 특성을 포함할 수 없다.
+-- 4. DEFAULT 값을 지정할 수 없다.
+-- 5. 스파스 열을 사용하면 행의 최대 크기가 8,060바이트에서 8,018바이트로 줄어든다.
+-- 6. 스파스 열이 포함된 테이블은 압축할 수가 없다.
+-- ※ 위 제약 사항을 참조해서 스파스 열을 적절하게 잘 활용하면 공간 절약의 효과를 얻을 수 있다.
+
+-- 임시 테이블 : 임시로 잠깐 사용되는 테이블
+-- 테이블을 만들 때 테이블 이름 앞에'#'또는 '##'을 붙이면 임시 테이블로 생성된다.
+
+-- 임시 테이블이 삭제되는 시점
+-- 1. 사용자가 DROP TABLE로 직접 삭제
+-- 2. SQL Server가 다시 시작되면 삭제
+-- 3. 로컬 임시 테이블은 생성한 사용자의 연결이 끊기면 삭제됨
+-- 4. 전역 임시 테이블은 생성한 사용자의 연결이 끊기고 이 테이블을 사용 중인 사용자가 없을 때 삭제
+
+USE tableDB;
+CREATE TABLE #tempTbl ( ID INT, txt NVARCHAR(10));
+GO
+CREATE TABLE ##tempTbl ( ID INT, txt NVARCHAR(10));
+GO
+INSERT INTO #tempTbl VALUES(1, N'지역임시테이블');
+INSERT INTO ##tempTbl VALUES(2, N'전역임시테이블');
+GO
+
+-- 테이블은 tempdb안에 들어있음
+SELECT * FROM #tempTbl
+SELECT * FROM ##tempTbl
+
+-- 쿼리창 2에서 전역임시테이블을 사용중임
+BEGIN TRAN
+	INSERT INTO ##tempTbl VALUES (2, N'새 쿼리창에서 입력');
+
+BEGIN TRAN
+	INSERT INTO ##tempTbl VALUES (2, N'새 쿼리창에서 입력');
+COMMIT TRAN;
+
+SELECT * FROM ##tempTbl;
+
+-- 테이블 삭제 : 외래키 제약조건의 기준 테이블은 삭제 할 수 없고, 외래 키가 생성된 외래 키 테이블을 삭제해야 한다.
+-- DROP TABLE 테이블명;
